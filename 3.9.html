@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Seat Booking</title>
+    <style>
+        body {
+            background-image: url('images/bus2.PNG');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .seats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .seat {
+            width: 75px; /* Increased size */
+            height: 75px; /* Increased size */
+            background-color: #007BFF;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .seat.selected {
+            background-color: #28a745;
+        }
+        .seat.booked {
+            background-color: #d9534f;
+            cursor: not-allowed;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn.disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bus Seat Booking</h1>
+        <div class="seats">
+            <!-- Adjusted seat layout for a bus format -->
+            <!-- Left side seats -->
+            <div class="seat" id="seat1">1</div>
+            <div class="seat" id="seat2">2</div>
+            <div></div>
+            <div></div>
+            <div class="seat" id="seat3">3</div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div class="seat" id="seat4">4</div>
+            
+            <div class="seat" id="seat5">5</div>
+            <!-- Aisle -->
+            
+            <!-- Right side seats -->
+            <div class="seat" id="seat6">6</div>
+            <div class="seat" id="seat7">7</div>
+            <div></div>
+            <div class="seat" id="seat8">8</div>
+            
+            <div class="seat" id="seat9">9</div>
+            <div class="seat" id="seat10">10</div>
+            <!-- Aisle -->
+            
+            <!-- Extra rows (if needed) -->
+            <div class="seat" id="seat11">11</div>
+            <div></div>
+            <div class="seat" id="seat12">12</div>
+            
+            <div class="seat" id="seat13">13</div>
+            
+            
+            <div class="seat" id="seat14">14</div>
+            <div class="seat" id="seat15">15</div>
+            <!-- Aisle -->
+            
+            <div class="seat" id="seat16">16</div>
+            
+            <div class="seat" id="seat17">17</div>
+            <div class="seat" id="seat18">18</div>
+            
+        </div>
+        <button class="btn" id="bookBtn" onclick="bookSeat()">Book Seat</button>
+    </div>
+
+    <script>
+        const seats = document.querySelectorAll('.seat');
+        const bookBtn = document.getElementById('bookBtn');
+        let selectedSeat = null;
+        let isBooked = false;
+
+        const name = localStorage.getItem('name');
+        const USN = localStorage.getItem('USN');
+        const branch = localStorage.getItem('Branch');
+
+        // Load booked seats from localStorage
+        function loadBookedSeats() {
+            seats.forEach(seat => {
+                const seatId = seat.id;
+                const bookedDetails = localStorage.getItem(seatId);
+                if (bookedDetails) {
+                    seat.classList.add('booked');
+                    seat.textContent = JSON.parse(bookedDetails).seatText;
+                }
+
+                seat.addEventListener('click', () => {
+                    if (!seat.classList.contains('booked') && !isBooked) {
+                        if (selectedSeat) {
+                            selectedSeat.classList.remove('selected');
+                        }
+                        seat.classList.add('selected');
+                        selectedSeat = seat;
+                    } else if (seat.classList.contains('booked')) {
+                        const details = JSON.parse(bookedDetails);
+                        alert(`This seat is already booked by:\nName: ${details.name}\nUSN: ${details.USN}\nBranch: ${details.branch}`);
+                    }
+                });
+            });
+        }
+
+        loadBookedSeats();
+
+        function bookSeat() {
+            if (selectedSeat) {
+                isBooked = true;
+                bookBtn.textContent = 'Seat Booked';
+                bookBtn.classList.add('disabled');
+
+                const seatId = selectedSeat.id;
+                const seatText = `Booked by ${name}`;
+
+                // Store booking details in localStorage
+                const bookingDetails = { name, USN, branch, seatText };
+                localStorage.setItem(seatId, JSON.stringify(bookingDetails));
+
+                selectedSeat.classList.add('booked');
+                selectedSeat.textContent = seatText;
+                alert(`Seat booked successfully!\n\nDetails:\nName: ${name}\nUSN: ${USN}\nBranch: ${branch}`);
+
+                seats.forEach(seat => {
+                    seat.removeEventListener('click', () => {
+                        if (!isBooked) {
+                            seat.classList.toggle('selected');
+                        }
+                    });
+                });
+            } else {
+                alert('Please select a seat before booking.');
+            }
+        }
+    </script>
+</body>
+</html>
